@@ -1,0 +1,41 @@
+#chat {
+  width: 100%;
+}
+
+#messages {
+  width: 90%;
+  margin: 0;
+  padding: 0;
+  height: 300px;
+  overflow: scroll;
+}
+
+#messages li {
+  list-style: none;
+  border-bottom: 1px solid #eee;
+  padding: 6px 0;
+}
+
+#user_list {
+  float: left;
+  list-style: none;
+  width: 8%;
+  margin: 0 10px;
+  height: 800px;
+  padding: 0;
+  border-right: 1px solid black;
+}
+
+#chat-window {
+  position: absolute;
+  border-top: 1px solid #eee;
+  bottom: 0;
+  width: 100%;
+  padding: 0;
+  margin: 0 0 0 9%;
+}
+
+#chat-window input {
+  margin: 20px 0;
+  width: 100%;
+}

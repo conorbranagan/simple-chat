@@ -1,54 +1,12 @@
 <!doctype html>
 <html>
   <head>
-    <title>Simple Chat</title>
+    <title>Simple Chat Client</title>
 
-    <style>
-    #chat {
-      width: 100%;
-    }
-
-    #messages {
-      width: 90%;
-      margin: 0;
-      padding: 0;
-      height: 300px;
-      overflow: scroll;
-    }
-
-    #messages li {
-      list-style: none;
-      border-bottom: 1px solid #eee;
-      padding: 6px 0;
-    }
-
-    #user_list {
-      float: left;
-      list-style: none;
-      width: 8%;
-      margin: 0 10px;
-      height: 800px;
-      padding: 0;
-      border-right: 1px solid black;
-    }
-
-    #chat-window {
-      position: absolute;
-      border-top: 1px solid #eee;
-      bottom: 0;
-      width: 100%;
-      padding: 0;
-      margin: 0 0 0 9%;
-    }
-
-    #chat-window input {
-      margin: 20px 0;
-      width: 100%;
-    }
-    </style>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
   </head>
   <body>
-    <h1>Simple Chatroom</h1>
+    <h1>Simple Chat Client</h1>
 
     <div id="chat">
       <ul id="user_list"></ul>
@@ -58,121 +16,18 @@
       </div>
     </div>
 
+    <script src="/javascripts/chat-client.js"></script>
     <script>
       (function() {
-        //
-        // Chat
-        var MESSAGE_TYPES = {
-          INIT: 'init',
-          SET_USER: 'set_user',
-          MESSAGE: 'message',
-          USER_JOIN: 'user_join',
-          USER_LEAVE: 'user_leave',
-        }
-
-        var Chat = function(handle) {
-          this.handle = handle;
-          this.messageList = document.querySelector('#messages');
-          this.userList = document.querySelector('#user_list');
-
-          // Event handlers
-          document.getElementById('message').addEventListener('keydown', function(e) {
-            switch (e.keyCode) {
-              case 13:
-                e.preventDefault(); e.stopPropagation();
-                var text = document.getElementById('message').value.trim();
-                if (text !== '') {
-                  this.sendMessage(text);
-                }
-                e.target.value = '';
-                break;
-            }
-          }.bind(this));
-        }
-
-        Chat.prototype.start = function() {
-          var conn = new WebSocket('ws://localhost:3000', 'protocolOne');
-          this.conn = conn;
-          this.users = [];
-
-          // Initialize user on connection open.
-          conn.onopen = function() {
-            conn.send(JSON.stringify({
-              type: MESSAGE_TYPES.SET_USER,
-              handle: handle
-            }));
-          };
-
-          // Handle messages.
-          conn.onmessage = function(e) {
-            var msg = JSON.parse(e.data);
-            switch(msg.type) {
-              case MESSAGE_TYPES.INIT:
-                this.users = msg.users;
-                this.refreshUserList();
-                break;
-              case MESSAGE_TYPES.MESSAGE:
-                this.postMessage(msg.handle, msg.text); break;
-              case MESSAGE_TYPES.USER_JOIN:
-                this.postStateChange(msg.user.handle + ' joined the room.');
-                this.users.push(msg.user);
-                this.refreshUserList();
-                break;
-              case MESSAGE_TYPES.USER_LEAVE:
-                this.postStateChange(msg.user.handle + ' left the room.');
-                this.users = this.users.filter(u => u.handle !== msg.user.handle);
-                this.refreshUserList();
-                break;
-              default:
-                console.log('Unhandled message type: ' + msg.type);
-                break;
-            }
-          }.bind(this);
-        };
-
-        Chat.prototype.scrollToBottom = function() {
-          this.messageList.scrollTop = this.messageList.scrollHeight;
-        };
-
-        Chat.prototype.sendMessage = function(text) {
-          this.conn.send(JSON.stringify({
-            type: MESSAGE_TYPES.MESSAGE,
-            handle: handle,
-            text: text
-          }));
-        };
-
-        Chat.prototype.refreshUserList = function() {
-          this.userList.innerHTML = '';
-          var elements = this.users.map(function(u) {
-            var e = document.createElement('li');
-            e.innerText = '[' + u.handle + ']';
-            this.userList.appendChild(e);
-          }.bind(this))
-        };
-
-        Chat.prototype.postMessage = function(handle, text) {
-          var msgEl = document.createElement('li');
-          msgEl.innerText = '[' + handle + '] ' + text;
-          this.messageList.appendChild(msgEl);
-          this.scrollToBottom();
-        };
-
-        Chat.prototype.postStateChange = function(text) {
-          var msgEl = document.createElement('li');
-          msgEl.innerHTML = '<em>' + text + '</em>';
-          this.messageList.appendChild(msgEl);
-          this.scrollToBottom();
-        };
-
-        // Start it up.
-        var handle = null;
-        while (handle === null || handle.trim() === '') {
+        var handle;
+        while (!handle || handle.trim() === '') {
           handle = prompt('Enter a handle');
         }
-        new Chat(handle).start();
-      }());
 
+        // Init the chat client.
+        var conn = new WebSocket('ws://localhost:3000', 'protocolOne');
+        new ChatClient(conn, handle).start();
+      }());
     </script>
   </body>
 </html>
