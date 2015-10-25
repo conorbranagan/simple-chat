@@ -70,8 +70,8 @@
           USER_LEAVE: 'user_leave',
         }
 
-        var Chat = function(username) {
-          this.username = username;
+        var Chat = function(handle) {
+          this.handle = handle;
           this.messageList = document.querySelector('#messages');
           this.userList = document.querySelector('#user_list');
 
@@ -99,7 +99,7 @@
           conn.onopen = function() {
             conn.send(JSON.stringify({
               type: MESSAGE_TYPES.SET_USER,
-              username: username
+              handle: handle
             }));
           };
 
@@ -112,15 +112,15 @@
                 this.refreshUserList();
                 break;
               case MESSAGE_TYPES.MESSAGE:
-                this.postMessage(msg.username, msg.text); break;
+                this.postMessage(msg.handle, msg.text); break;
               case MESSAGE_TYPES.USER_JOIN:
-                this.postStateChange(msg.user.name + ' joined the room.');
+                this.postStateChange(msg.user.handle + ' joined the room.');
                 this.users.push(msg.user);
                 this.refreshUserList();
                 break;
               case MESSAGE_TYPES.USER_LEAVE:
-                this.postStateChange(msg.user.name + ' left the room.');
-                this.users = this.users.filter(u => u.name !== msg.user.name);
+                this.postStateChange(msg.user.handle + ' left the room.');
+                this.users = this.users.filter(u => u.handle !== msg.user.handle);
                 this.refreshUserList();
                 break;
               default:
@@ -137,7 +137,7 @@
         Chat.prototype.sendMessage = function(text) {
           this.conn.send(JSON.stringify({
             type: MESSAGE_TYPES.MESSAGE,
-            username: username,
+            handle: handle,
             text: text
           }));
         };
@@ -146,14 +146,14 @@
           this.userList.innerHTML = '';
           var elements = this.users.map(function(u) {
             var e = document.createElement('li');
-            e.innerText = '[' + u.name + ']';
+            e.innerText = '[' + u.handle + ']';
             this.userList.appendChild(e);
           }.bind(this))
         };
 
-        Chat.prototype.postMessage = function(username, text) {
+        Chat.prototype.postMessage = function(handle, text) {
           var msgEl = document.createElement('li');
-          msgEl.innerText = '[' + username + '] ' + text;
+          msgEl.innerText = '[' + handle + '] ' + text;
           this.messageList.appendChild(msgEl);
           this.scrollToBottom();
         };
@@ -166,11 +166,11 @@
         };
 
         // Start it up.
-        var username = null;
-        while (username === null || username.trim() === '') {
-          username = prompt('Enter a username');
+        var handle = null;
+        while (handle === null || handle.trim() === '') {
+          handle = prompt('Enter a handle');
         }
-        new Chat(username).start();
+        new Chat(handle).start();
       }());
 
     </script>
