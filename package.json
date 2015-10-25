@@ -1,0 +1,23 @@
+{
+  "name": "simple-chat",
+  "version": "0.0.1",
+  "description": "A simple chat app using Node.js, Websockets and ES6",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.13.3",
+    "ejs": "^2.3.4",
+    "nodemon": "^1.7.3",
+    "ws": "^0.8.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conorbranagan/simple-chat"
+  },
+  "author": "Conor Branagan",
+  "license": "MIT"
+}
